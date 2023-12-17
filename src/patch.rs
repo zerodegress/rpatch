@@ -5,6 +5,7 @@ use std::{error::Error, fmt::Display, path::PathBuf};
 pub struct PatchOptions {
     pub line_ending: String,
     pub work_directory: PathBuf,
+    pub strip_num: Option<u32>,
 }
 
 impl Default for PatchOptions {
@@ -16,6 +17,7 @@ impl Default for PatchOptions {
                 "\n".to_string()
             },
             work_directory: PathBuf::from(""),
+            strip_num: None,
         }
     }
 }
@@ -47,16 +49,20 @@ pub fn apply_patch(patch: &str, options: PatchOptions) -> Result<(), PatchError>
         Ok(patches) => {
             for patch in patches {
                 match std::fs::read_to_string(
-                    workdir.join(
-                        patch
-                            .old
-                            .path
-                            .trim()
-                            .split_ascii_whitespace()
-                            .next()
-                            .unwrap()
-                            .to_string(),
-                    ),
+                    workdir
+                        .join(
+                            patch
+                                .old
+                                .path
+                                .trim()
+                                .split_ascii_whitespace()
+                                .nth(1)
+                                .unwrap()
+                                .to_string(),
+                        )
+                        .components()
+                        .skip(options.strip_num.unwrap_or(0) as usize)
+                        .collect::<PathBuf>(),
                 ) {
                     Ok(old) => {
                         let mut hunks = patch.hunks.into_iter();
@@ -98,15 +104,19 @@ pub fn apply_patch(patch: &str, options: PatchOptions) -> Result<(), PatchError>
                         }
                         let new = new_lines.join(&options.line_ending);
                         match std::fs::write(
-                            workdir.join(
-                                patch
-                                    .new
-                                    .path
-                                    .to_string()
-                                    .split_ascii_whitespace()
-                                    .next()
-                                    .unwrap(),
-                            ),
+                            workdir
+                                .join(
+                                    patch
+                                        .new
+                                        .path
+                                        .to_string()
+                                        .split_ascii_whitespace()
+                                        .next()
+                                        .unwrap(),
+                                )
+                                .components()
+                                .skip(options.strip_num.unwrap_or(0) as usize)
+                                .collect::<PathBuf>(),
                             new,
                         ) {
                             Ok(_) => {}
