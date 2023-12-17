@@ -8,5 +8,4 @@ license = "MIT"
 description = "A simple tool aimed to patch files using Unified Diff Format patch."
 
 [dependencies]
-nom = "7.1.3"
 patch = "0.7.0"
