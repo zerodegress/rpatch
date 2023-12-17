@@ -5,6 +5,7 @@ edition = "2021"
 authors = ["zerodegress"]
 repository = "https://github.com/zerodegress/rpatch"
 license = "MIT"
+description = "A simple tool aimed to patch files using Unified Diff Format patch."
 
 [dependencies]
 nom = "7.1.3"
