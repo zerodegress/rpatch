@@ -1,2 +1,2 @@
-mod error;
-mod patch;
+pub mod error;
+pub mod patch;
